@@ -36,10 +36,12 @@ class _NoteDetailsViewState extends State<NoteDetailsView> {
       return;
     }
     noteDatabase.read(note.id!).then((noteValue) {
-      note = noteValue;
-      titleController.text = note.title;
-      contentController.text = note.content;
-      isFavorite = note.isFavorite;
+      setState(() {
+        note = noteValue;
+        titleController.text = note.title;
+        contentController.text = note.content;
+        isFavorite = note.isFavorite;
+      });
     });
   }
 
@@ -50,6 +52,7 @@ class _NoteDetailsViewState extends State<NoteDetailsView> {
 
     final model = NoteModel(
       title: titleController.text,
+      number: 1,
       content: contentController.text,
       isFavorite: isFavorite,
       createdTime: DateTime.now(),
@@ -57,7 +60,7 @@ class _NoteDetailsViewState extends State<NoteDetailsView> {
     if (isNewNote) {
       noteDatabase.create(note);
     } else {
-      noteDatabase.update(model);
+      model.id = note.id;
     }
     setState(() {
       isLoading = false;
