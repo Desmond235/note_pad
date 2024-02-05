@@ -1,7 +1,7 @@
 import 'package:note_app/constants/note_fields.dart';
 import 'package:note_app/model/note_model.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart' as p;
+import 'package:path/path.dart';
 
 class NoteDatabase {
   static final NoteDatabase instance = NoteDatabase._internal();
@@ -11,29 +11,29 @@ class NoteDatabase {
   NoteDatabase._internal();
 
   Future<Database> get database async {
-    if (_database != null) {
+    if (_database !=null) {
       return _database!;
-    }
-    _database = await initDatabase('notes.db');
-    return _database!;
+    } 
+     _database ??= await _initDatabase('notes1.db');
+      return _database!;
   }
 
-  Future<Database> initDatabase(String filePath) async {
+  static Future<Database> _initDatabase(String filePath) async {
     final databasePath = await getDatabasesPath();
-    final path = p.join(databasePath, filePath);
+    final path = join(databasePath, filePath);
 
     return await openDatabase(path, version: 1, onCreate: _createDatabase);
   }
 
-  Future<void> _createDatabase(Database db, int version) async {
-    db.execute('''
-        CREATE TABLE ${NoteFields.tableName}(
+  static Future<void> _createDatabase(Database db, _) async {
+    return await db.execute('''
+        CREATE TABLE ${NoteFields.tableName} (
           ${NoteFields.id} ${NoteFields.idType},
           ${NoteFields.number} ${NoteFields.intType},
           ${NoteFields.title} ${NoteFields.textType},
           ${NoteFields.content} ${NoteFields.textType},
-          ${NoteFields.isFavorite} ${NoteFields.textType},
-          ${NoteFields.createdTime} ${NoteFields.textType},
+          ${NoteFields.isFavorite} ${NoteFields.intType},
+          ${NoteFields.createdTime} ${NoteFields.textType}
         )
       ''');
   }
@@ -43,7 +43,6 @@ class NoteDatabase {
     final int id = await db.insert(
       NoteFields.tableName,
       note.toJson(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
     );
     return note.copy(id: id);
   }
@@ -66,12 +65,13 @@ class NoteDatabase {
 
   Future<List<NoteModel>> readAll() async {
     final db = await instance.database;
-    final items = await db.query(NoteFields.tableName);
+    const orderBy = '${NoteFields.createdTime} ASC';
+    final items = await db.query( NoteFields.tableName, orderBy: orderBy);
 
     return items.map((json) => NoteModel.fromJson(json)).toList();
   }
 
-  Future update(NoteModel note) async {
+  Future<int> update(NoteModel note) async {
     final db = await instance.database;
     return await db.update(
       NoteFields.tableName,
@@ -81,7 +81,7 @@ class NoteDatabase {
     );
   }
 
-  Future delete(int id) async {
+  Future<int> delete(int id) async {
     final db = await instance.database;
     return await db.delete(
       NoteFields.tableName,

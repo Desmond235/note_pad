@@ -20,14 +20,24 @@ class _NoteDetailsViewState extends State<NoteDetailsView> {
   bool isNewNote = false;
   bool isLoading = false;
   bool isFavorite = false;
+  final _focusNode = FocusNode();
+  final _fNode = FocusNode();
 
   @override
   void initState() {
-    super.initState();
     refreshNotes();
+    super.initState();
   }
 
-//
+  @override
+  void dispose() {
+    titleController.dispose();
+    contentController.dispose();
+    super.dispose();
+  }
+
+//Gets the note from the database and updates the state if the noteId  is not null
+// else it sets the isNewNote to true
   void refreshNotes() {
     if (widget.noteId == null) {
       setState(() {
@@ -35,7 +45,7 @@ class _NoteDetailsViewState extends State<NoteDetailsView> {
       });
       return;
     }
-    noteDatabase.read(note.id!).then((noteValue) {
+    noteDatabase.read(widget.noteId!).then((noteValue) {
       setState(() {
         note = noteValue;
         titleController.text = note.title;
@@ -45,6 +55,8 @@ class _NoteDetailsViewState extends State<NoteDetailsView> {
     });
   }
 
+//Create a new note i the isNewNote is true else it updates the
+// existing note
   void createNote() {
     setState(() {
       isLoading = true;
@@ -58,26 +70,54 @@ class _NoteDetailsViewState extends State<NoteDetailsView> {
       createdTime: DateTime.now(),
     );
     if (isNewNote) {
-      noteDatabase.create(note);
+      noteDatabase.create(model);
     } else {
       model.id = note.id;
+      noteDatabase.update(model);
     }
+    _focusNode.unfocus();
+    _fNode.unfocus();
     setState(() {
       isLoading = false;
     });
   }
 
   void deleteNote() {
+    Navigator.pop(context);
     noteDatabase.delete(note.id!);
     Navigator.pop(context);
   }
 
+  void showAlertDialog() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Do you want to delete this note?'),
+            content: const Text('This action cannot be undone'),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Cancel')),
+              TextButton(
+                onPressed: deleteNote,
+                child: const Text('Delete'),
+              )
+            ],
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
+    Color color = Colors.white.withOpacity(0.7);
     return Scaffold(
-      backgroundColor: Colors.black87,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.black87,
+        iconTheme: IconThemeData(color: Colors.white.withOpacity(0.7)),
+        backgroundColor: const Color.fromARGB(221, 43, 43, 43),
         actions: [
           IconButton(
             onPressed: () {
@@ -85,18 +125,21 @@ class _NoteDetailsViewState extends State<NoteDetailsView> {
                 isFavorite = !isFavorite;
               });
             },
-            icon: Icon(!isFavorite ? Icons.favorite_border : Icons.favorite),
-          ),
-          Visibility(
-            visible: !isNewNote,
-            child: IconButton(
-              onPressed: createNote,
-              icon: const Icon(Icons.save),
+            icon: Icon(
+              !isFavorite ? Icons.favorite_border : Icons.favorite,
+              color: color,
             ),
           ),
           IconButton(
-            onPressed: deleteNote,
+            onPressed: createNote,
+            icon: const Icon(Icons.save),
+            color: color,
+          ),
+          if(!isNewNote)
+          IconButton(
+            onPressed: showAlertDialog,
             icon: const Icon(Icons.delete),
+            color: color,
           )
         ],
       ),
@@ -104,6 +147,8 @@ class _NoteDetailsViewState extends State<NoteDetailsView> {
         isLoading: isLoading,
         controller: titleController,
         cController: contentController,
+        focusNode: _focusNode,
+        fNode: _fNode,
       ),
     );
   }
