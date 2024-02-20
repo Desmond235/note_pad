@@ -80,6 +80,7 @@ class _NoteDetailsViewState extends State<NoteDetailsView> {
     setState(() {
       isLoading = false;
     });
+
   }
 
   void deleteNote() {
@@ -135,12 +136,12 @@ class _NoteDetailsViewState extends State<NoteDetailsView> {
             icon: const Icon(Icons.save),
             color: color,
           ),
-          if(!isNewNote)
-          IconButton(
-            onPressed: showAlertDialog,
-            icon: const Icon(Icons.delete),
-            color: color,
-          )
+          if (!isNewNote)
+            IconButton(
+              onPressed: showAlertDialog,
+              icon: const Icon(Icons.delete),
+              color: color,
+            )
         ],
       ),
       body: NoteContent(

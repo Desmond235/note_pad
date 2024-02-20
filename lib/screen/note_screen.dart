@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:note_app/database/note_database.dart';
 import 'package:note_app/model/note_model.dart';
 import 'package:note_app/screen/note_details_view.dart';
+import 'package:note_app/screen/search_screen.dart';
 
 class NoteScreen extends StatefulWidget {
   const NoteScreen({super.key});
@@ -62,7 +63,11 @@ class _NoteScreenState extends State<NoteScreen> {
         ),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => const SearchScreen()),
+              );
+            },
             icon: Icon(
               Icons.search,
               color: Colors.white.withOpacity(0.7),
