@@ -29,7 +29,7 @@ class _NoteScreenState extends State<NoteScreen> {
   }
 
 //  gets all notes from the database
-  void refreshNotes() async {
+  void refreshNotes() {
     noteDatabase.readAll().then((value) {
       setState(() {
         notes = value;

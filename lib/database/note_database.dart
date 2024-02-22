@@ -11,11 +11,11 @@ class NoteDatabase {
   NoteDatabase._internal();
 
   Future<Database> get database async {
-    if (_database !=null) {
+    if (_database != null) {
       return _database!;
-    } 
-     _database ??= await _initDatabase('notes1.db');
-      return _database!;
+    }
+    _database ??= await _initDatabase('notes1.db');
+    return _database!;
   }
 
   static Future<Database> _initDatabase(String filePath) async {
@@ -55,7 +55,6 @@ class NoteDatabase {
       where: '${NoteFields.id} = ?',
       whereArgs: [id],
     );
-
     if (item.isNotEmpty) {
       return NoteModel.fromJson(item.first);
     } else {
@@ -63,10 +62,17 @@ class NoteDatabase {
     }
   }
 
+  Future<List<NoteModel>> search(String text) async {
+    final db = await instance.database;
+    final searchItem = await db.rawQuery(
+        "SELECT * FROM ${NoteFields.tableName} where ${NoteFields.title} LIKE '%$text%' OR ${NoteFields.content} LIKE '%$text%'");
+    return searchItem.map((json) => NoteModel.fromJson(json)).toList();
+  }
+
   Future<List<NoteModel>> readAll() async {
     final db = await instance.database;
     const orderBy = '${NoteFields.createdTime} ASC';
-    final items = await db.query( NoteFields.tableName, orderBy: orderBy);
+    final items = await db.query(NoteFields.tableName, orderBy: orderBy);
 
     return items.map((json) => NoteModel.fromJson(json)).toList();
   }
