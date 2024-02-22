@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
 
-class SearchBar extends StatelessWidget {
-  const SearchBar(this.onQueryChandged, {super.key});
-  final void Function(String query) onQueryChandged;
+class SearchBars extends StatelessWidget {
+  const SearchBars({super.key, required this.onQueryChandged});
+  final void Function(String) onQueryChandged;
 
   @override
   Widget build(BuildContext context) {
     FocusNode focusNode = FocusNode();
     return Container(
-      padding: const EdgeInsets.all(10),
+      margin: const EdgeInsets.all(5), 
       child: Padding(
         padding: const EdgeInsets.all(15),
         child: TextField(
           focusNode: focusNode,
           cursorColor: Colors.white,
+          style: const TextStyle( color: Colors.white),
           textInputAction: TextInputAction.search,
+          onChanged: onQueryChandged,
           onSubmitted: (value) {
             focusNode.unfocus();
           },
