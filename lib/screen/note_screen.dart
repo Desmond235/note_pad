@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:note_app/database/note_database.dart';
 import 'package:note_app/model/note_model.dart';
 import 'package:note_app/screen/note_details_view.dart';
@@ -14,6 +15,8 @@ class NoteScreen extends StatefulWidget {
 class _NoteScreenState extends State<NoteScreen> {
   NoteDatabase noteDatabase = NoteDatabase.instance;
   List<NoteModel> notes = [];
+  bool isLoading = true;
+  bool isDeleted = false;
 
   @override
   void initState() {
@@ -29,12 +32,20 @@ class _NoteScreenState extends State<NoteScreen> {
   }
 
 //  gets all notes from the database
-  void refreshNotes() {
+  void refreshNotes() async {
     noteDatabase.readAll().then((value) {
       setState(() {
         notes = value;
+        isLoading = false;
       });
     });
+  }
+
+  void deleteNote(int id, NoteModel note) async {
+    setState(() {
+      notes.remove(note);
+    });
+    noteDatabase.delete(id);
   }
 
   // Navigates to the NoteDetailsView screen
@@ -75,72 +86,111 @@ class _NoteScreenState extends State<NoteScreen> {
           ),
         ],
       ),
-      body: notes.isEmpty
+      body: isLoading
           ? const Center(
-              child: Text(
-                'No notes yet',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                ),
-              ),
+              child: CircularProgressIndicator(),
             )
-          : Container(
-              margin: const EdgeInsets.only(top: 25),
-              padding: const EdgeInsets.all(5),
-              child: ListView.builder(
-                  itemCount: notes.length,
-                  itemBuilder: (context, index) {
-                    final note = notes[index];
-
-                    return Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: GestureDetector(
-                        onTap: () => goToNoteDetailsView(id: note.id),
-                        child: Card(
-                          margin: const EdgeInsets.all(2),
-                          color:
-                              Theme.of(context).colorScheme.secondaryContainer,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  note.title,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headlineMedium!
-                                      .copyWith(color: Colors.black),
-                                ),
-                                Text(
-                                  note.content.trim(),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyLarge!
-                                      .copyWith(color: Colors.black),
-                                ),
-                                const SizedBox(height: 10),
-                                Text(
-                                  note.createdTime.toString().split(' ')[0],
-                                  maxLines: 1,
-                                  style: TextStyle(
-                                      color: Colors.black.withOpacity(0.8)),
-                                )
-                              ],
+          : notes.isEmpty
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Stack(
+                      children: [
+                        Center(
+                          child: Lottie.asset(
+                            'assets/lottiefiles/notepad.json',
+                            width: 200,
+                            height: 180,
+                          ),
+                        ),
+                        const Positioned(
+                          top: 140,
+                          left: 130,
+                          child: Center(
+                            child: Text(
+                              'No notes yet',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    );
-                  }),
-            ),
+                      ],
+                    )
+                  ],
+                )
+              : Container(
+                  margin: const EdgeInsets.only(top: 25),
+                  padding: const EdgeInsets.all(5),
+                  child: ListView.builder(
+                      itemCount: notes.length,
+                      itemBuilder: (context, index) {
+                        final note = notes[index];
+                        return Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: GestureDetector(
+                            onTap: () => goToNoteDetailsView(id: note.id),
+                            child: Card(
+                              margin: const EdgeInsets.all(2),
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .secondaryContainer,
+                              child: ListTile(
+                                trailing: IconButton.filledTonal(
+                                  onPressed: () => deleteNote(note.id!, note),
+                                  icon: const Icon(Icons.delete),
+                                ),
+                                title: Padding(
+                                  padding: const EdgeInsets.all(2),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        note.title,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headlineMedium!
+                                            .copyWith(color: Colors.black),
+                                      ),
+                                      Text(
+                                        note.content.trim(),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyLarge!
+                                            .copyWith(color: Colors.black),
+                                      ),
+                                      const SizedBox(height: 10),
+                                      Text(
+                                        note.createdTime
+                                            .toString()
+                                            .split(' ')[0],
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                            color:
+                                                Colors.black.withOpacity(0.8)),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                ),
       floatingActionButton: FloatingActionButton(
         onPressed: goToNoteDetailsView,
         tooltip: 'Create notes',
-        child: const Icon(Icons.add),
+        child: Lottie.asset(
+          'assets/lottiefiles/add.json',
+          width: 50,
+          height: 50,
+          frameRate: FrameRate.max,
+        ),
       ),
     );
   }

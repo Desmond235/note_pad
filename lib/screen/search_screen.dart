@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:note_app/database/note_database.dart';
 import 'package:note_app/model/note_model.dart';
 import 'package:note_app/screen/note_details_view.dart';
@@ -87,23 +88,13 @@ class _SearchScreenState extends State<SearchScreen> {
     if (!noteFound) {
       content = Column(
         children: [
-          const SizedBox(height: 20),
-          Container(
-            padding: const EdgeInsets.all(5),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(40),
-              color: const Color.fromARGB(255, 65, 64, 64),
-            ),
-            child: IconButton(
-              onPressed: null,
-              icon: Icon(
-                Icons.search,
-                color: Colors.white.withOpacity(0.7),
-                size: 50,
-              ),
-            ),
+          const SizedBox(height: 10),
+          Lottie.asset(
+            'assets/lottiefiles/search.json',
+            width: 200,
+            height: 200,
+            frameRate: FrameRate.max,
           ),
-          const SizedBox(height: 5),
           Text(
             'Note not found',
             style:
