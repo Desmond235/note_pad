@@ -53,8 +53,8 @@ class NoteDatabase {
     final item = await db.query(
       NoteFields.tableName,
       columns: NoteFields.values,
-      where: '${NoteFields.id} = ? AND ${NoteFields.isDeleted} = ?',
-      whereArgs: [id, isDeleted],
+      where: '${NoteFields.id} = ? AND ${NoteFields.isDeleted} = 0',
+      whereArgs: [id,],
     );
     if (item.isNotEmpty) {
       return NoteModel.fromJson(item.first);
@@ -65,15 +65,20 @@ class NoteDatabase {
 
   Future<List<NoteModel>> search(String text) async {
     final db = await instance.database;
-    final searchItem = await db.rawQuery(
-        "SELECT * FROM ${NoteFields.tableName} where ${NoteFields.title} LIKE '%$text%' OR ${NoteFields.content} LIKE '%$text%'");
+    final searchItem = await db.query(
+      NoteFields.tableName,
+      where: "${NoteFields.title} LIKE '%$text' OR ${NoteFields.content} LIKE '%$text'"
+    );
     return searchItem.map((json) => NoteModel.fromJson(json)).toList();
   }
 
   Future<List<NoteModel>> readAll() async {
     final db = await instance.database;
     const orderBy = '${NoteFields.createdTime} ASC';
-    final items = await db.query(NoteFields.tableName, orderBy: orderBy,);
+    final items = await db.query(
+      NoteFields.tableName,
+      orderBy: orderBy,
+    );
 
     return items.map((json) => NoteModel.fromJson(json)).toList();
   }
