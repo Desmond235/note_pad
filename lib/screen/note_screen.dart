@@ -16,7 +16,7 @@ class _NoteScreenState extends State<NoteScreen> {
   NoteDatabase noteDatabase = NoteDatabase.instance;
   List<NoteModel> notes = [];
   bool isLoading = true;
-  bool isDeleted = false;
+  bool deleted = false;
 
   @override
   void initState() {
@@ -41,18 +41,46 @@ class _NoteScreenState extends State<NoteScreen> {
     });
   }
 
+  // delete note
   void deleteNote(int id, NoteModel note) async {
+    final noteIndex = notes.indexOf(note);
+    setState(() {
+      deleted = true;
+      print(deleted);
+    });
     setState(() {
       notes.remove(note);
     });
+
+    // setState(() {
+    //   isNotUndone = true;
+    // });
+
     noteDatabase.delete(id);
+
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('note deleted'),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () {
+            setState(() {
+              notes.insert(noteIndex, note);
+              deleted = false;
+            });
+          },
+        ),
+      ),
+    );
   }
 
   // Navigates to the NoteDetailsView screen
-  void goToNoteDetailsView({int? id}) async {
+  void goToNoteDetailsView({int? id, bool? isDeleted}) async {
     await Navigator.of(context).push<NoteDetailsView>(
       MaterialPageRoute(
-        builder: ((context) => NoteDetailsView(noteId: id)),
+        builder: ((context) =>
+            NoteDetailsView(noteId: id, isDeleted: isDeleted)),
       ),
     );
     refreshNotes();
@@ -130,7 +158,10 @@ class _NoteScreenState extends State<NoteScreen> {
                         return Padding(
                           padding: const EdgeInsets.all(10),
                           child: GestureDetector(
-                            onTap: () => goToNoteDetailsView(id: note.id),
+                            onTap: () => goToNoteDetailsView(
+                              id: note.id,
+                              isDeleted: deleted,
+                            ),
                             child: Card(
                               margin: const EdgeInsets.all(2),
                               color: Theme.of(context)

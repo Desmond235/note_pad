@@ -1,13 +1,13 @@
 import 'package:note_app/constants/note_fields.dart';
 
 class NoteModel {
-  
   int? id;
   final int? number;
   final String title;
   final String content;
   final bool isFavorite;
   final DateTime? createdTime;
+  final bool? isDeleted;
   NoteModel({
     this.id,
     this.number,
@@ -15,6 +15,7 @@ class NoteModel {
     required this.content,
     required this.isFavorite,
     required this.createdTime,
+    required this.isDeleted,
   });
 
   factory NoteModel.fromJson(Map<String, dynamic> json) => NoteModel(
@@ -26,6 +27,7 @@ class NoteModel {
         createdTime: DateTime.tryParse(
           json[NoteFields.createdTime] as String,
         ),
+        isDeleted: json[NoteFields.isDeleted] ==1,
       );
 
   Map<String, dynamic> toJson() => {
@@ -34,7 +36,8 @@ class NoteModel {
         NoteFields.title: title,
         NoteFields.content: content,
         NoteFields.isFavorite: isFavorite ? 1 : 0,
-        NoteFields.createdTime: createdTime?.toIso8601String()
+        NoteFields.createdTime: createdTime?.toIso8601String(),
+        NoteFields.isDeleted: isDeleted! ? 1 : 0
       };
 
   NoteModel copy({
@@ -44,6 +47,7 @@ class NoteModel {
     String? content,
     bool? isFavorite,
     DateTime? createdTime,
+    bool? isDeleted,
   }) =>
       NoteModel(
         id: id ?? this.id,
@@ -52,5 +56,6 @@ class NoteModel {
         content: content ?? this.content,
         isFavorite: isFavorite ?? this.isFavorite,
         createdTime: createdTime ?? this.createdTime,
+        isDeleted: isDeleted ?? this.isDeleted,
       );
 }

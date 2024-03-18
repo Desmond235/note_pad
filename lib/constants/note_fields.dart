@@ -6,6 +6,7 @@ class NoteFields {
     content,
     isFavorite,
     createdTime,
+    isDeleted,
   ];
   static const String tableName = 'notes';
   static const String idType = 'INTEGER PRIMARY KEY AUTOINCREMENT';
@@ -17,4 +18,5 @@ class NoteFields {
   static const String content = 'content';
   static const String isFavorite = 'is_favorite';
   static const String createdTime = 'created_time';
+  static const String isDeleted = 'is_deleted';
 }

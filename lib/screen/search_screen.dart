@@ -59,16 +59,17 @@ class _SearchScreenState extends State<SearchScreen> {
                     Text(
                       note.title,
                       style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                          color: Colors.black, fontWeight: FontWeight.bold),
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
                     Text(
                       note.content.trim(),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium!
-                          .copyWith(color: Colors.black),
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            color: Colors.black,
+                          ),
                     ),
                     const SizedBox(height: 10),
                     Text(

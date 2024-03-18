@@ -4,8 +4,9 @@ import 'package:note_app/model/note_model.dart';
 import 'package:note_app/widgets/note_content.dart';
 
 class NoteDetailsView extends StatefulWidget {
-  const NoteDetailsView({super.key, this.noteId});
+  const NoteDetailsView({super.key, this.noteId, this.isDeleted});
   final int? noteId;
+  final bool? isDeleted;
 
   @override
   State<NoteDetailsView> createState() => _NoteDetailsViewState();
@@ -20,6 +21,7 @@ class _NoteDetailsViewState extends State<NoteDetailsView> {
   bool isNewNote = false;
   bool isLoading = false;
   bool isFavorite = false;
+  bool deleted = false;
   final _focusNode = FocusNode();
   final _fNode = FocusNode();
 
@@ -45,7 +47,7 @@ class _NoteDetailsViewState extends State<NoteDetailsView> {
       });
       return;
     }
-    noteDatabase.read(widget.noteId!).then((noteValue) {
+    noteDatabase.read(widget.noteId!, widget.isDeleted!).then((noteValue) {
       setState(() {
         note = noteValue;
         titleController.text = note.title;
@@ -63,12 +65,12 @@ class _NoteDetailsViewState extends State<NoteDetailsView> {
     });
 
     final model = NoteModel(
-      title: titleController.text,
-      number: 1,
-      content: contentController.text,
-      isFavorite: isFavorite,
-      createdTime: DateTime.now(),
-    );
+        title: titleController.text,
+        number: 1,
+        content: contentController.text,
+        isFavorite: isFavorite,
+        createdTime: DateTime.now(),
+        isDeleted: widget.isDeleted!);
     if (isNewNote) {
       noteDatabase.create(model);
     } else {
@@ -80,7 +82,6 @@ class _NoteDetailsViewState extends State<NoteDetailsView> {
     setState(() {
       isLoading = false;
     });
-
   }
 
   void deleteNote() {

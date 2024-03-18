@@ -33,7 +33,8 @@ class NoteDatabase {
           ${NoteFields.title} ${NoteFields.textType},
           ${NoteFields.content} ${NoteFields.textType},
           ${NoteFields.isFavorite} ${NoteFields.intType},
-          ${NoteFields.createdTime} ${NoteFields.textType}
+          ${NoteFields.createdTime} ${NoteFields.textType},
+          ${NoteFields.isDeleted} ${NoteFields.intType},
         )
       ''');
   }
@@ -47,13 +48,13 @@ class NoteDatabase {
     return note.copy(id: id);
   }
 
-  Future<NoteModel> read(int id) async {
+  Future<NoteModel> read(int id, bool isDeleted) async {
     final db = await instance.database;
     final item = await db.query(
       NoteFields.tableName,
       columns: NoteFields.values,
-      where: '${NoteFields.id} = ?',
-      whereArgs: [id],
+      where: '${NoteFields.id} = ? AND ${NoteFields.isDeleted} = ?',
+      whereArgs: [id, isDeleted],
     );
     if (item.isNotEmpty) {
       return NoteModel.fromJson(item.first);
@@ -72,7 +73,7 @@ class NoteDatabase {
   Future<List<NoteModel>> readAll() async {
     final db = await instance.database;
     const orderBy = '${NoteFields.createdTime} ASC';
-    final items = await db.query(NoteFields.tableName, orderBy: orderBy);
+    final items = await db.query(NoteFields.tableName, orderBy: orderBy,);
 
     return items.map((json) => NoteModel.fromJson(json)).toList();
   }
