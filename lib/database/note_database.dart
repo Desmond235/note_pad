@@ -25,8 +25,8 @@ class NoteDatabase {
     return await openDatabase(path, version: 1, onCreate: _createDatabase);
   }
 
-  static Future<void> _createDatabase(Database db, _) async {
-    return await db.execute('''
+  static Future<void> _createDatabase(Database noteDb, _) async {
+    return await noteDb.execute('''
         CREATE TABLE ${NoteFields.tableName} (
           ${NoteFields.id} ${NoteFields.idType},
           ${NoteFields.number} ${NoteFields.intType},
@@ -48,13 +48,13 @@ class NoteDatabase {
     return note.copy(id: id);
   }
 
-  Future<NoteModel> read(int id, bool isDeleted) async {
+  Future<NoteModel> read(int id) async {
     final db = await instance.database;
     final item = await db.query(
       NoteFields.tableName,
       columns: NoteFields.values,
       where: '${NoteFields.id} = ? AND ${NoteFields.isDeleted} = 0',
-      whereArgs: [id,],
+      whereArgs: [id],
     );
     if (item.isNotEmpty) {
       return NoteModel.fromJson(item.first);

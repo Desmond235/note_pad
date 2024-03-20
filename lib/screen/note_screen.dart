@@ -16,7 +16,7 @@ class _NoteScreenState extends State<NoteScreen> {
   NoteDatabase noteDatabase = NoteDatabase.instance;
   List<NoteModel> notes = [];
   bool isLoading = true;
-  bool deleted = false;
+  bool isDeleted = false;
 
   @override
   void initState() {
@@ -43,20 +43,26 @@ class _NoteScreenState extends State<NoteScreen> {
 
   // delete note
   void deleteNote(int id, NoteModel note) async {
+    setState(() {
+      isDeleted = true;
+    });
+
+    final model = NoteModel(isDeleted: isDeleted);
+
+    noteDatabase.update(model);
     final noteIndex = notes.indexOf(note);
-    setState(() {
-      deleted = true;
-      print(deleted);
-    });
-    setState(() {
-      notes.remove(note);
-    });
+
+    if (isDeleted) {
+      setState(() {
+        notes.remove(note);
+      });
+    }
 
     // setState(() {
     //   isNotUndone = true;
     // });
 
-    noteDatabase.delete(id);
+    // noteDatabase.delete(id);
 
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
@@ -66,8 +72,10 @@ class _NoteScreenState extends State<NoteScreen> {
           label: 'Undo',
           onPressed: () {
             setState(() {
+              isDeleted = false;
+              final model = NoteModel(isDeleted: isDeleted);
+              noteDatabase.update(model);
               notes.insert(noteIndex, note);
-              deleted = false;
             });
           },
         ),
@@ -76,11 +84,10 @@ class _NoteScreenState extends State<NoteScreen> {
   }
 
   // Navigates to the NoteDetailsView screen
-  void goToNoteDetailsView({int? id, bool? isDeleted}) async {
+  void goToNoteDetailsView({int? id}) async {
     await Navigator.of(context).push<NoteDetailsView>(
       MaterialPageRoute(
-        builder: ((context) =>
-            NoteDetailsView(noteId: id, isDeleted: isDeleted)),
+        builder: ((context) => NoteDetailsView(noteId: id)),
       ),
     );
     refreshNotes();
@@ -160,7 +167,6 @@ class _NoteScreenState extends State<NoteScreen> {
                           child: GestureDetector(
                             onTap: () => goToNoteDetailsView(
                               id: note.id,
-                              isDeleted: deleted,
                             ),
                             child: Card(
                               margin: const EdgeInsets.all(2),
@@ -179,14 +185,14 @@ class _NoteScreenState extends State<NoteScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        note.title,
+                                        note.title!,
                                         style: Theme.of(context)
                                             .textTheme
                                             .headlineMedium!
                                             .copyWith(color: Colors.black),
                                       ),
                                       Text(
-                                        note.content.trim(),
+                                        note.content!.trim(),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         style: Theme.of(context)
