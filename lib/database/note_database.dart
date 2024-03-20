@@ -14,7 +14,7 @@ class NoteDatabase {
     if (_database != null) {
       return _database!;
     }
-    _database ??= await _initDatabase('notes1.db');
+    _database ??= await _initDatabase('notes2.db');
     return _database!;
   }
 
