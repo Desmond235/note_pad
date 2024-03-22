@@ -57,14 +57,14 @@ class _SearchScreenState extends State<SearchScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      note.title!,
+                      note.title,
                       style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
                           ),
                     ),
                     Text(
-                      note.content!.trim(),
+                      note.content.trim(),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(

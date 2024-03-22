@@ -4,6 +4,7 @@ import 'package:note_app/database/note_database.dart';
 import 'package:note_app/model/note_model.dart';
 import 'package:note_app/screen/note_details_view.dart';
 import 'package:note_app/screen/search_screen.dart';
+import 'package:note_app/widgets/dialog.dart';
 
 class NoteScreen extends StatefulWidget {
   const NoteScreen({super.key});
@@ -15,6 +16,7 @@ class NoteScreen extends StatefulWidget {
 class _NoteScreenState extends State<NoteScreen> {
   NoteDatabase noteDatabase = NoteDatabase.instance;
   List<NoteModel> notes = [];
+  late NoteModel note;
   bool isLoading = true;
   bool isDeleted = false;
 
@@ -47,38 +49,22 @@ class _NoteScreenState extends State<NoteScreen> {
       isDeleted = true;
     });
 
-    final model = NoteModel(isDeleted: isDeleted);
-
-    noteDatabase.update(model);
-    final noteIndex = notes.indexOf(note);
-
+    final mode =
+        NoteModel(isDeleted: isDeleted, number: 2, createdTime: DateTime.now());
     if (isDeleted) {
-      setState(() {
-        notes.remove(note);
-      });
+      mode.id = id;
+      noteDatabase.update(mode);
     }
-
-    // setState(() {
-    //   isNotUndone = true;
-    // });
-
-    // noteDatabase.delete(id);
+    Navigator.of(context).pop();
+    setState(() {
+      notes.remove(note);
+    });
 
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('note deleted'),
-        action: SnackBarAction(
-          label: 'Undo',
-          onPressed: () {
-            setState(() {
-              isDeleted = false;
-              final model = NoteModel(isDeleted: isDeleted);
-              noteDatabase.update(model);
-              notes.insert(noteIndex, note);
-            });
-          },
-        ),
+      const SnackBar(
+        padding:  EdgeInsets.all(10),
+        content: Center(child: Text('note deleted')),
       ),
     );
   }
@@ -175,7 +161,9 @@ class _NoteScreenState extends State<NoteScreen> {
                                   .secondaryContainer,
                               child: ListTile(
                                 trailing: IconButton.filledTonal(
-                                  onPressed: () => deleteNote(note.id!, note),
+                                  onPressed: () => showAlertDialog(context, () {
+                                    deleteNote(note.id!, note);
+                                  }),
                                   icon: const Icon(Icons.delete),
                                 ),
                                 title: Padding(
@@ -185,14 +173,14 @@ class _NoteScreenState extends State<NoteScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        note.title!,
+                                        note.title,
                                         style: Theme.of(context)
                                             .textTheme
                                             .headlineMedium!
                                             .copyWith(color: Colors.black),
                                       ),
                                       Text(
-                                        note.content!.trim(),
+                                        note.content.trim(),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         style: Theme.of(context)

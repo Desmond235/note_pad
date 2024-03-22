@@ -7,7 +7,6 @@ class NoteDetailsView extends StatefulWidget {
   const NoteDetailsView({super.key, this.noteId});
   final int? noteId;
 
-
   @override
   State<NoteDetailsView> createState() => _NoteDetailsViewState();
 }
@@ -49,9 +48,9 @@ class _NoteDetailsViewState extends State<NoteDetailsView> {
     noteDatabase.read(widget.noteId!).then((noteValue) {
       setState(() {
         note = noteValue;
-        titleController.text = note.title!;
-        contentController.text = note.content!;
-        isFavorite = note.isFavorite!;
+        titleController.text = note.title;
+        contentController.text = note.content;
+        isFavorite = note.isFavorite;
       });
     });
   }
@@ -64,18 +63,19 @@ class _NoteDetailsViewState extends State<NoteDetailsView> {
     });
 
     final model = NoteModel(
-        title: titleController.text,
-        number: 1,
-        content: contentController.text,
-        isFavorite: isFavorite,
-        createdTime: DateTime.now(),
-        );
+      title: titleController.text,
+      number: 1,
+      content: contentController.text,
+      isFavorite: isFavorite,
+      createdTime: DateTime.now(),
+    );
     if (isNewNote) {
       noteDatabase.create(model);
     } else {
       model.id = note.id;
       noteDatabase.update(model);
     }
+
     _focusNode.unfocus();
     _fNode.unfocus();
     setState(() {
@@ -94,17 +94,33 @@ class _NoteDetailsViewState extends State<NoteDetailsView> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: const Text('Do you want to delete this note?'),
-            content: const Text('This action cannot be undone'),
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            surfaceTintColor: Theme.of(context).scaffoldBackgroundColor,
+            title: const Text(
+              'Do you want to delete this note?',
+              style: TextStyle(color: Colors.white),
+            ),
+            content: Text(
+              'This action cannot be undone',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.7),
+              ),
+            ),
             actions: [
               TextButton(
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  child: const Text('Cancel')),
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(color: Colors.white),
+                  )),
               TextButton(
                 onPressed: deleteNote,
-                child: const Text('Delete'),
+                child: const Text(
+                  'Delete',
+                  style: TextStyle(color: Colors.white),
+                ),
               )
             ],
           );

@@ -34,7 +34,7 @@ class NoteDatabase {
           ${NoteFields.content} ${NoteFields.textType},
           ${NoteFields.isFavorite} ${NoteFields.intType},
           ${NoteFields.createdTime} ${NoteFields.textType},
-          ${NoteFields.isDeleted} ${NoteFields.intType},
+          ${NoteFields.isDeleted} ${NoteFields.intType}
         )
       ''');
   }
@@ -53,7 +53,7 @@ class NoteDatabase {
     final item = await db.query(
       NoteFields.tableName,
       columns: NoteFields.values,
-      where: '${NoteFields.id} = ? AND ${NoteFields.isDeleted} = 0',
+      where: '${NoteFields.id} = ?',
       whereArgs: [id],
     );
     if (item.isNotEmpty) {
@@ -78,6 +78,7 @@ class NoteDatabase {
     final items = await db.query(
       NoteFields.tableName,
       orderBy: orderBy,
+      where: '${NoteFields.isDeleted} = 0 '
     );
 
     return items.map((json) => NoteModel.fromJson(json)).toList();
