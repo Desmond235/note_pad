@@ -62,12 +62,14 @@ class NoteDatabase {
       throw Exception('ID $id not found');
     }
   }
+  
 
   Future<List<NoteModel>> search(String text) async {
     final db = await instance.database;
     final searchItem = await db.query(
       NoteFields.tableName,
-      where: "${NoteFields.title} LIKE '%$text' OR ${NoteFields.content} LIKE '%$text'"
+      where:
+          "${NoteFields.title} LIKE '%$text%' OR ${NoteFields.content} LIKE '%$text%'",
     );
     return searchItem.map((json) => NoteModel.fromJson(json)).toList();
   }
@@ -78,7 +80,6 @@ class NoteDatabase {
     final items = await db.query(
       NoteFields.tableName,
       orderBy: orderBy,
-      where: '${NoteFields.isDeleted} = 0 '
     );
 
     return items.map((json) => NoteModel.fromJson(json)).toList();
