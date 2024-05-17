@@ -18,7 +18,7 @@ class _NoteScreenState extends State<NoteScreen> {
   List<NoteModel> notes = [];
   late NoteModel note;
   bool isLoading = true;
-  bool isDeleted = false;
+ 
 
   @override
   void initState() {
@@ -45,25 +45,17 @@ class _NoteScreenState extends State<NoteScreen> {
 
   // delete note
   void deleteNote(int id, NoteModel note) async {
-    setState(() {
-      isDeleted = true;
-    });
-
-    final mode =
-        NoteModel(isDeleted: isDeleted, number: 2, createdTime: DateTime.now());
-    if (isDeleted) {
-      mode.id = id;
-      noteDatabase.update(mode);
-    }
     Navigator.of(context).pop();
     setState(() {
       notes.remove(note);
     });
 
+    noteDatabase.delete(id);
+
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        padding:  EdgeInsets.all(10),
+        padding: EdgeInsets.all(10),
         content: Center(child: Text('note deleted')),
       ),
     );
